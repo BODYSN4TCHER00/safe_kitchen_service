@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db'); 
+const sequelize = require('../config/db');
 const bcrypt = require('bcryptjs');
 
-const User = sequelize.define('users', {
+const User = sequelize.define('User', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -14,8 +14,8 @@ const User = sequelize.define('users', {
   },
   email: {
     type: DataTypes.STRING(100),
-    unique: true,
     allowNull: false,
+    unique: true,
     validate: {
       isEmail: true
     }
@@ -33,23 +33,29 @@ const User = sequelize.define('users', {
     defaultValue: DataTypes.NOW
   }
 }, {
-  timestamps: false,
+  tableName: 'users',
+  timestamps: false, // Usamos created_at personalizado
   hooks: {
-    beforeSave: async (user) => {
+    // Hash password antes de crear usuario
+    beforeCreate: async (user) => {
+      if (user.password_hash) {
+        const salt = await bcrypt.genSalt(10);
+        user.password_hash = await bcrypt.hash(user.password_hash, salt);
+      }
+    },
+    // Hash password antes de actualizar si cambió
+    beforeUpdate: async (user) => {
       if (user.changed('password_hash')) {
-        user.password_hash = await bcrypt.hash(user.password_hash, 10);
+        const salt = await bcrypt.genSalt(10);
+        user.password_hash = await bcrypt.hash(user.password_hash, salt);
       }
     }
   }
 });
 
-User.prototype.validPassword = async function(password) {
-  return await bcrypt.compare(password, this.password_hash);
+// Método para verificar password
+User.prototype.validPassword = async function(enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password_hash);
 };
-
-// Sincronizar el modelo (opcional, solo para desarrollo)
-User.sync({ alter: true })
-  .then(() => console.log('✅ Modelo de usuarios sincronizado'))
-  .catch(err => console.error('❌ Error al sincronizar modelo:', err));
 
 module.exports = User;

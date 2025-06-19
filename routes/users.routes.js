@@ -6,10 +6,15 @@ const generateToken = require('../config/jwt');
 
 // Registro de usuario
 router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
-
+  const { name, email, password, phone_number } = req.body;
   try {
-    const user = await User.create({ name, email, password_hash: password });
+    // Verificar si el usuario ya existe
+    const userExists = await User.findOne({ where: { email } });
+    if (userExists) {
+      return res.status(400).json({ message: 'El usuario ya existe' });
+    }
+
+    const user = await User.create({ name, email, password_hash: password, phone_number });
     res.status(201).json({
       id: user.id,
       name: user.name,
@@ -23,19 +28,23 @@ router.post('/register', async (req, res) => {
 
 // Login de usuario
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ where: { email } });
-  
-  if (user && (await user.validPassword(password))) {
-    res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user.id) // Usamos la misma función
-    });
-  } else {
-    res.status(401).json({ message: 'Credenciales inválidas' });
+    const user = await User.findOne({ where: { email } });
+    
+    if (user && (await user.validPassword(password))) {
+      res.json({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        token: generateToken(user.id)
+      });
+    } else {
+      res.status(401).json({ message: 'Credenciales inválidas' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error en login', error: error.message });
   }
 });
 
