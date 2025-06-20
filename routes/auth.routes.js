@@ -1,96 +1,40 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/Users');
-const { generateToken, validateRegistration, validateLogin } = require('../middleware/auth');
+const User = require('../models/users');
+const { protect } = require('../middleware/auth');
+const generateToken = require('../config/jwt');
 
-// Registro de usuario
-router.post('/register', validateRegistration, async (req, res) => {
-  try {
-    const { name, email, password, phone_number } = req.body;
-
-    // Verificar si el usuario ya existe
-    const existingUser = await User.findByEmail(email);
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'El email ya está registrado'
-      });
-    }
-
-    // Crear nuevo usuario
-    const newUser = await User.create({
-      name,
-      email,
-      password,
-      phone_number
-    });
-
-    // Generar token
-    const token = generateToken(newUser.id);
-
-    res.status(201).json({
-      success: true,
-      message: 'Usuario registrado exitosamente',
-      data: {
-        user: newUser,
-        token
-      }
-    });
-
-  } catch (error) {
-    console.error('Error en registro:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error interno del servidor'
-    });
-  }
-});
-
-// Login de usuario
-router.post('/login', validateLogin, async (req, res) => {
+// Login
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Buscar usuario
-    const user = await User.findByEmail(email);
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Credenciales inválidas'
+    const user = await User.findOne({ where: { email } });
+
+    if (user && (await user.validPassword(password))) {
+      res.json({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        token: generateToken(user.id)
       });
+    } else {
+      res.status(401).json({ message: 'Credenciales inválidas' });
     }
-
-    // Verificar contraseña
-    const isValidPassword = await User.verifyPassword(password, user.password_hash);
-    if (!isValidPassword) {
-      return res.status(401).json({
-        success: false,
-        message: 'Credenciales inválidas'
-      });
-    }
-
-    // Generar token
-    const token = generateToken(user.id);
-
-    // Remover password_hash de la respuesta
-    const { password_hash, ...userWithoutPassword } = user;
-
-    res.json({
-      success: true,
-      message: 'Login exitoso',
-      data: {
-        user: userWithoutPassword,
-        token
-      }
-    });
-
   } catch (error) {
-    console.error('Error en login:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error interno del servidor'
-    });
+    res.status(500).json({ message: 'Error en login', error: error.message });
   }
+});
+
+// Perfil protegido
+router.get('/profile', protect, (req, res) => {
+  res.json(req.user);
+});
+
+// Logout (opcional, si estás manejando tokens en el cliente)
+router.post('/logout', (req, res) => {
+  // En APIs basadas en tokens (JWT), el logout generalmente se maneja en el cliente
+  res.json({ message: 'Sesión cerrada correctamente' });
 });
 
 module.exports = router;

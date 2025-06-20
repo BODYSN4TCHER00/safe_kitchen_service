@@ -42,3 +42,10 @@ Device.associate = (models) => {
 };
 
 module.exports = Device;
+
+Device.associate = (models) => {
+  Device.belongsTo(models.User, {
+    foreignKey: 'user_id',
+    as: 'user'
+  });
+};
