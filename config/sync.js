@@ -3,8 +3,9 @@ const sequelize = require('./db');
 // Importar todos los modelos
 const User = require('../models/users');
 const Device = require('../models/devices');
-const Sensors = require('../models/sensors');
+const Sensor = require('../models/sensors');
 const SensorReading = require('../models/sensorReadings');
+const Alert = require('../models/alerts');
 
 // Función para sincronizar todas las tablas
 const syncDatabase = async () => {
