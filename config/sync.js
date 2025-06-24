@@ -4,7 +4,7 @@ const sequelize = require('./db');
 const User = require('../models/users');
 const Device = require('../models/devices');
 const Sensors = require('../models/sensors');
-
+const SensorReading = require('../models/sensorReadings');
 
 // Función para sincronizar todas las tablas
 const syncDatabase = async () => {

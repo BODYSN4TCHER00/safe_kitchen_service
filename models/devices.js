@@ -48,4 +48,11 @@ Device.associate = (models) => {
     foreignKey: 'user_id',
     as: 'user'
   });
+
+  Device.hasMany(models.Sensor, {
+    foreignKey: 'device_id',
+    as: 'sensors',        
+    onDelete: 'CASCADE'
+
+  });
 };
