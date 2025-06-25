@@ -5,6 +5,7 @@ const db = require('./config/db');
 const syncDatabase = require('./config/sync');
 const exportRoutes = require('./routes/export.routes');
 const app = express();
+console.log("URL de conexión:", process.env.DATABASE_URL);
 
 // Sincronizar base de datos
 syncDatabase();

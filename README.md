@@ -1,4 +1,3 @@
-# safe_kitchen_service
 // Usuario
 export interface User {
   id: number;
