@@ -33,26 +33,4 @@ const Device = sequelize.define('Device', {
   timestamps: false
 });
 
-// Relación con User
-Device.associate = (models) => {
-  Device.belongsTo(models.User, {
-    foreignKey: 'user_id',
-    as: 'user'
-  });
-};
-
 module.exports = Device;
-
-Device.associate = (models) => {
-  Device.belongsTo(models.User, {
-    foreignKey: 'user_id',
-    as: 'user'
-  });
-
-  Device.hasMany(models.Sensor, {
-    foreignKey: 'device_id',
-    as: 'sensors',        
-    onDelete: 'CASCADE'
-
-  });
-};

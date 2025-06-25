@@ -56,14 +56,14 @@ const Sensor = sequelize.define('Sensor', {
 });
 
 // Asociaciones bien definidas
-Sensor.belongsTo(Device, { 
-  foreignKey: 'device_id',
-  as: 'device'
-});
+// Sensor.belongsTo(Device, { 
+//   foreignKey: 'device_id',
+//   as: 'device'
+// });
 
-Device.hasMany(Sensor, { 
-  foreignKey: 'device_id',
-  as: 'sensors'
-});
+// Device.hasMany(Sensor, { 
+//   foreignKey: 'device_id',
+//   as: 'sensors'
+// });
 
 module.exports = Sensor;

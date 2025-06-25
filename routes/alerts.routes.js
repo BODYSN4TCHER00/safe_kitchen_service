@@ -44,13 +44,14 @@ router.post('/', protect, async (req, res) => {
       return res.status(404).json({ message: 'Lectura no encontrada' });
     }
 
-    const alert = await Alert.create({
-      reading_id,
-      type,
-      status: status || 'activa',
-      message,
-      notified_at: new Date()
-    });
+  const alert = await Alert.create({
+    reading_id,
+    device_id: reading.sensor.device_id, 
+    type,
+    status: status || 'activa',
+    message,
+    notified_at: new Date()
+  });
 
     res.status(201).json(alert);
   } catch (error) {

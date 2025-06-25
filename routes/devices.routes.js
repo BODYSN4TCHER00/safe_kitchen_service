@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { sequelize } = require('../config/db');
+const sequelize = require('../config/db');
 const Device = require('../models/devices');
 const Sensor = require('../models/sensors');
 const SensorReading = require('../models/sensorReadings');
@@ -9,10 +9,10 @@ const { createDefaultSensors, getSensorsStructured } = require('../utils/deviceH
 
 // Crear un nuevo device
 router.post('/', protect, async (req, res) => {  
-  const transaction = await sequelize.transaction(); 
-  const { name } = req.body;
-
+  let transaction;
   try {
+    transaction = await sequelize.transaction(); 
+    const { name } = req.body;
     const crypto = require('crypto');
     const apiKey = crypto.randomBytes(32).toString('hex');
 
@@ -26,7 +26,7 @@ router.post('/', protect, async (req, res) => {
 
     // Crear sensores predefinidos
     console.log('🔄 Creando sensores predefinidos...');
-    const sensors = await createDefaultSensors(device.id, transaction);
+    const sensors = await createDefaultSensors(device.id, { transaction });
     await transaction.commit();
     console.log('✅ Sensores creados:', sensors.length);
 
@@ -39,7 +39,7 @@ router.post('/', protect, async (req, res) => {
       sensors_created: sensors.length
     });
   } catch (error) {
-    await transaction.rollback();    
+    if (transaction) await transaction.rollback();    
     console.error('❌ Error:', error);
     res.status(400).json({ message: 'Error creando device', error: error.message });
   }

@@ -88,11 +88,9 @@ router.get('/', protect, async (req, res) => {
       limit: req.query.limit ? parseInt(req.query.limit) : 100
     });
     
-    console.log('📊 Lecturas encontradas:', readings.length);
     res.json(readings);
     
   } catch (error) {
-    console.error('❌ Error obteniendo lecturas:', error);
     res.status(500).json({ 
       message: 'Error obteniendo lecturas', 
       error: error.message 

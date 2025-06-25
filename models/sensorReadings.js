@@ -36,15 +36,4 @@ const SensorReading = sequelize.define('SensorReading', {
   timestamps: false
 });
 
-// Asociaciones
-SensorReading.belongsTo(Sensor, { 
-  foreignKey: 'sensor_id',
-  as: 'sensor'
-});
-
-Sensor.hasMany(SensorReading, { 
-  foreignKey: 'sensor_id',
-  as: 'readings'
-});
-
 module.exports = SensorReading;

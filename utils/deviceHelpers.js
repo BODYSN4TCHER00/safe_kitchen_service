@@ -1,18 +1,18 @@
 const Sensor = require('../models/sensors');
 
-const createDefaultSensors = async (deviceId, transaction = null) => {
+const createDefaultSensors = async (deviceId, options = {}) => {
   console.log('🔄 createDefaultSensors - deviceId:', deviceId);
-  
+
   const sensors = [
     { name: 'Temperatura', type: 'temperatura', unit: '°C', threshold: 35.0, device_id: deviceId },
     { name: 'Gas', type: 'gas', unit: 'PPM', threshold: 50.0, device_id: deviceId },
     { name: 'Magnético', type: 'magnetico', unit: 'boolean', threshold: 1.0, device_id: deviceId }
   ];
-  
+
   console.log('📊 Sensors a crear:', sensors);
-  
+
   try {
-    const result = await Sensor.bulkCreate(sensors, { transaction });
+    const result = await Sensor.bulkCreate(sensors, options); 
     console.log('✅ Sensores creados exitosamente:', result.length);
     return result;
   } catch (error) {
